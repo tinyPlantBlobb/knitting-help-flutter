@@ -61,6 +61,7 @@ class _StartPageState extends State<StartPage> {
         MaterialPageRoute(builder: (context) => PatternScreen(),));
     setState(() {
       _patternLength = newpattern;
+      _counter =  1;
     });
   }
   @override
@@ -225,7 +226,7 @@ class PatternScreen extends StatefulWidget{
 
 class _PatternScreenState extends State<PatternScreen> {
   int _patternLength = 8;
-  final patternController = TextEditingController();
+  TextEditingController patternController = TextEditingController();
 
 //input
   void onTextInput(String newInput) {
@@ -234,6 +235,7 @@ class _PatternScreenState extends State<PatternScreen> {
     });
     Navigator.pop(context, _patternLength);
   }
+
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -241,7 +243,16 @@ class _PatternScreenState extends State<PatternScreen> {
     super.dispose();
   }
 
-
+  void _sendDataBack(BuildContext context) {
+    String textToSendBack = patternController.text;
+    var string = int.tryParse(textToSendBack);
+    if ( string != null){
+      setState(() {
+        _patternLength = int.parse(textToSendBack);
+      });
+    }
+    Navigator.pop(context, _patternLength);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -253,36 +264,38 @@ class _PatternScreenState extends State<PatternScreen> {
       ),
       body: Column(
           children: <Widget>[
-            UserInput(onTextInput: onTextInput),
-              const Text('the current pattern length is'),
+            Padding(
+              padding: const EdgeInsets.all(32.0),
+            child: const Text('the current pattern length is'),
+            ),
+
 
               Text(
                 '$_patternLength',
                 style: Theme.of(context).textTheme.headline4,
               ),
+              TextField(
+              onSubmitted: onTextInput,
+              controller: patternController,
+              decoration: const InputDecoration(labelText: "Enter the pattern length"),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+              ),
+            ElevatedButton(
+                child: const Text('change pattern',
+                  style: TextStyle(color: Colors.black),
+                ),
+                onPressed: (){ _sendDataBack(context);}
+
+            ),
           ],
+
       ),
-    );
-  }
-}
- class UserInput extends StatelessWidget {
-   const UserInput({Key? key, required this.onTextInput}) : super(key: key);
-   final void Function(String) onTextInput;
 
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      onChanged: onTextInput,
-      decoration: const InputDecoration(labelText: "Enter the pattern length"),
-      keyboardType: TextInputType.number,
-      inputFormatters: <TextInputFormatter>[
-        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-        FilteringTextInputFormatter.digitsOnly
-      ],
 
     );
   }
-
-
-
 }
