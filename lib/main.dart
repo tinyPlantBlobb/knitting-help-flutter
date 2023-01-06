@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'dart:typed_data';
 
 void main() {
   runApp(const MyApp());
@@ -16,14 +18,7 @@ class MyApp extends StatelessWidget {
       title: 'knitting help',
       theme: ThemeData(
         // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
+
         primarySwatch: Colors.green,
       ),
       home: const StartPage(title: 'Knitting help'),
@@ -61,7 +56,13 @@ class _StartPageState extends State<StartPage> {
 
     });
   }
-
+  void changePattern() async{
+    final newpattern = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) => PatternScreen(),));
+    setState(() {
+      _patternLength = newpattern;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final ButtonStyle style = TextButton.styleFrom(
@@ -81,10 +82,7 @@ class _StartPageState extends State<StartPage> {
         actions: <Widget>[
           TextButton(
             style: style,
-          onPressed: () {Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PatternScreen()),
-          );},
+          onPressed: changePattern,
           child: const Text('change Pattern'),
           ),
         ],
@@ -114,6 +112,9 @@ class _StartPageState extends State<StartPage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+
+
 }
 
 class PatternScreen extends StatefulWidget{
@@ -127,10 +128,12 @@ class _PatternScreenState extends State<PatternScreen> {
   int _patternLength = 8;
   final patternController = TextEditingController();
 
+//input
   void onTextInput(String newInput) {
     setState(() {
       _patternLength = int.parse(newInput);
     });
+    Navigator.pop(context, _patternLength);
   }
   @override
   void dispose() {
@@ -138,6 +141,9 @@ class _PatternScreenState extends State<PatternScreen> {
     patternController.dispose();
     super.dispose();
   }
+
+
+
   @override
   Widget build(BuildContext context) {
 
