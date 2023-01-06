@@ -102,6 +102,14 @@ class _StartPageState extends State<StartPage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+              //sensor data display
+              const Text('Accelerometer X: '),
+              Text('$_accX'),
+              const Text('Accelerometer Y: '),
+              Text('$_accY'),
+              const Text('Accelerometer Z: '),
+              Text('$_accZ'),
+
           ],
         ),
       ),
@@ -114,6 +122,7 @@ class _StartPageState extends State<StartPage> {
   }
 
   // headphone part
+  // the base code has been copied from https://github.com/teco-kit/cosinuss-flutter since I'm working with the Cosinuss One headphones
 
   String _connectionStatus = "Disconnected";
 
@@ -181,6 +190,7 @@ class _StartPageState extends State<StartPage> {
           for (var service in services) { // iterate over services
             for (var characteristic in service.characteristics) { // iterate over characterstics
               switch (characteristic.uuid.toString()) {
+                //case for updating the accelerometer
                 case "0000a001-1212-efde-1523-785feabcd123":
                   print("Starting sampling ...");
                   await characteristic.write([0x32, 0x31, 0x39, 0x32, 0x37, 0x34, 0x31, 0x30, 0x35, 0x39, 0x35, 0x35, 0x30, 0x32, 0x34, 0x35]);
@@ -193,12 +203,6 @@ class _StartPageState extends State<StartPage> {
                   await Future.delayed(new Duration(seconds: 2));
                   break;
 
-
-
-                case "00002a1c-0000-1000-8000-00805f9b34fb":
-                  await characteristic.setNotifyValue(true);
-                  await Future.delayed(new Duration(seconds: 2)); // short delay before next bluetooth operation otherwise BLE crashes
-                  break;
               }
             };
           };
