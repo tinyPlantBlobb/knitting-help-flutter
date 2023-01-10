@@ -170,7 +170,7 @@ class _StartPageState extends State<StartPage> {
     int acc_x = bytes[14];
     int acc_y = bytes[16];
     int acc_z = bytes[18];
-    if (acc_y < 0) {
+    if (acc_y > 0 && accy <= 0) {
       _incrementCounter();
     }
 
