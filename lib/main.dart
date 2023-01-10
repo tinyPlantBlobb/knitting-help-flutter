@@ -1,9 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:typed_data';
-
+/*
+* notes/ ToDO:
+*         on nodd/ Y = 0 or Y <0 increase counter?
+*         on moving head close to shoulder via Z -axis
+*
+*         max abs = 35
+*
+* */
 void main() {
   runApp(const MyApp());
 }
@@ -114,11 +120,19 @@ class _StartPageState extends State<StartPage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),*/
+      // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: Visibility(visible: !_isConnected,
+        child: FloatingActionButton(
+          onPressed: _connect,
+          tooltip: 'Increment',
+          child: const Icon(Icons.bluetooth_searching_sharp),
+        ),
+      ),
     );
   }
 
