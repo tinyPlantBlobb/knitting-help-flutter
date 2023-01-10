@@ -116,7 +116,15 @@ class _StartPageState extends State<StartPage> {
               Text('$_accY'),
               const Text('Accelerometer Z: '),
               Text('$_accZ'),
+            ElevatedButton(
+                child: const Text('disconnect',
+                  style: TextStyle(color: Colors.black),
+                ),
+                onPressed: (){
+                  //disconect();
+                }
 
+            ),
           ],
         ),
       ),
@@ -144,6 +152,9 @@ class _StartPageState extends State<StartPage> {
   String _accX = "-";
   String _accY = "-";
   String _accZ = "-";
+  int accx = 0;
+  int accy = 0;
+  int accz = 0;
 
   bool _isConnected = false;
 
@@ -159,8 +170,14 @@ class _StartPageState extends State<StartPage> {
     int acc_x = bytes[14];
     int acc_y = bytes[16];
     int acc_z = bytes[18];
+    if (acc_y < 0) {
+      _incrementCounter();
+    }
 
     setState(() {
+      accx = acc_x;
+      accy = acc_y;
+      accz = acc_z;
       _accX = acc_x.toString() + " (unknown unit)";
       _accY = acc_y.toString() + " (unknown unit)";
       _accZ = acc_z.toString() + " (unknown unit)";
@@ -174,9 +191,9 @@ class _StartPageState extends State<StartPage> {
 
     return mantissa;
   }
-
+  FlutterBlue flutterBlue = FlutterBlue.instance;
   void _connect() {
-    FlutterBlue flutterBlue = FlutterBlue.instance;
+
 
     // start scanning
     flutterBlue.startScan(timeout: Duration(seconds: 4));
@@ -204,9 +221,7 @@ class _StartPageState extends State<StartPage> {
 
           for (var service in services) { // iterate over services
             for (var characteristic in service.characteristics) { // iterate over characterstics
-              switch (characteristic.uuid.toString()) {
-                //case for updating the accelerometer
-                case "0000a001-1212-efde-1523-785feabcd123":
+              if(characteristic.uuid.toString() == "0000a001-1212-efde-1523-785feabcd123") {
                   print("Starting sampling ...");
                   await characteristic.write([0x32, 0x31, 0x39, 0x32, 0x37, 0x34, 0x31, 0x30, 0x35, 0x39, 0x35, 0x35, 0x30, 0x32, 0x34, 0x35]);
                   await Future.delayed(new Duration(seconds: 2)); // short delay before next bluetooth operation otherwise BLE crashes
@@ -227,7 +242,6 @@ class _StartPageState extends State<StartPage> {
     }
     );
   }
-
 
 }
 
