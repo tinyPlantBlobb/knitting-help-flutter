@@ -14,3 +14,8 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Connecting 
+to connect the cosinuss tap on the floating action button and select the wanted location setting, 
+then go into the app permissions and set nearby devices to allowed otherwise the connection 
+to the BLE device will fail

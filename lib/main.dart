@@ -2,14 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:typed_data';
-/*
-* notes/ ToDO:
-*         on nodd/ Y = 0 or Y <0 increase counter?
-*         on moving head close to shoulder via Z -axis
-*
-*         max abs = 35
-*
-* */
+
 void main() {
   runApp(const MyApp());
 }
@@ -64,7 +57,7 @@ class _StartPageState extends State<StartPage> {
   }
   void changePattern() async{
     final newpattern = await Navigator.push(context,
-        MaterialPageRoute(builder: (context) => PatternScreen(),));
+        MaterialPageRoute(builder: (context) => PatternScreen(_patternLength),));
     setState(() {
       _patternLength = newpattern;
       _counter =  1;
@@ -109,49 +102,51 @@ class _StartPageState extends State<StartPage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
-              //sensor data display
-              const Text('Accelerometer X: '),
-              Text('$_accX'),
-              const Text('Accelerometer Y: '),
-              Text('$_accY'),
-              const Text('Accelerometer Z: '),
-              Text('$_accZ'),
             ElevatedButton(
-                child: const Text('disconnect',
-                  style: TextStyle(color: Colors.black),
-                ),
-                onPressed: (){
-                  //disconect();
-                }
-
+              onPressed: _incrementCounter,
+              child: const Text('Increment',
+              style: TextStyle(color: Colors.black),
+              ),
             ),
           ],
         ),
       ),
-      /*floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),*/
+
+
       // This trailing comma makes auto-formatting nicer for build methods.
-      floatingActionButton: Visibility(visible: !_isConnected,
-        child: FloatingActionButton(
-          onPressed: _connect,
-          tooltip: 'Increment',
-          child: const Icon(Icons.bluetooth_searching_sharp),
-        ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Visibility(
+            visible: !_isConnected,
+            child: FloatingActionButton(
+            onPressed: _connect,
+            tooltip: 'connect',
+            child: const Icon(Icons.bluetooth_searching_sharp),
+            ),
+          ),
+          Visibility(
+            visible: _isConnected,
+            child: FloatingActionButton(
+              onPressed: _disconnect,
+              tooltip: 'disconnect',
+              child: const Icon(Icons.bluetooth_disabled),
+            ),
+          ),
+        ],
       ),
     );
   }
 
+
+  void _disconnect(){
+
+  }
   // headphone part
   // the base code has been copied from https://github.com/teco-kit/cosinuss-flutter since I'm working with the Cosinuss One headphones
 
   String _connectionStatus = "Disconnected";
 
-  String _accX = "-";
-  String _accY = "-";
-  String _accZ = "-";
   int accx = 0;
   int accy = 0;
   int accz = 0;
@@ -178,9 +173,7 @@ class _StartPageState extends State<StartPage> {
       accx = acc_x;
       accy = acc_y;
       accz = acc_z;
-      _accX = acc_x.toString() + " (unknown unit)";
-      _accY = acc_y.toString() + " (unknown unit)";
-      _accZ = acc_z.toString() + " (unknown unit)";
+
     });
   }
 
@@ -246,7 +239,8 @@ class _StartPageState extends State<StartPage> {
 }
 
 class PatternScreen extends StatefulWidget{
-  const PatternScreen({super.key});
+  const PatternScreen(this.patternLength, {super.key});
+  final int patternLength;
 
   @override
   State<PatternScreen> createState() => _PatternScreenState();
@@ -299,7 +293,7 @@ class _PatternScreenState extends State<PatternScreen> {
 
 
               Text(
-                '$_patternLength',
+                '${widget.patternLength}',
                 style: Theme.of(context).textTheme.headline4,
               ),
               TextField(
