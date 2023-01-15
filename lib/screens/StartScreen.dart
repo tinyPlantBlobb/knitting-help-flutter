@@ -40,7 +40,8 @@ class _StartPageState extends State<StartPage> {
     final prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      _counter = prefs.getInt(key) ?? 0;
+      //if no saved count exists return 1 as the next row
+      _counter = prefs.getInt(key) ?? 1;
       _patternLength = prefs.getInt(key2) ?? 8;
 
     });
