@@ -152,9 +152,11 @@ class _StartPageState extends State<StartPage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            const Text('The earable is currently'),
+            Text(' $_connectionStatus'),
             ElevatedButton(
               onPressed: _incrementCounter,
-              child: const Text('Increment',
+              child: const Text('Increment manually',
                 style: TextStyle(color: Colors.black),
               ),
             ),
@@ -240,7 +242,7 @@ class _StartPageState extends State<StartPage> {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   //not tested with the earable
   void _disconnect(){
-    var subscribes = flutterBlue.connectedDevices.then((devices) async {
+    flutterBlue.connectedDevices.then((devices) async {
       for(BluetoothDevice d in devices){
         if (d.name == "earconnect" && earConnectFound){
           earConnectFound = false;
@@ -257,7 +259,7 @@ class _StartPageState extends State<StartPage> {
     flutterBlue.startScan(timeout: Duration(seconds: 4));
 
     // listen to scan results
-    var subscription = flutterBlue.scanResults.listen((results) async {
+    flutterBlue.scanResults.listen((results) async {
 
       // do something with scan results
       for (ScanResult r in results) {
