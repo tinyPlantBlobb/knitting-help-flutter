@@ -18,14 +18,22 @@ class _PatternScreenState extends State<PatternScreen> {
   void onTextInput(String newInput) {
     var string = int.tryParse(newInput)??0;
     if (string ==0){
-
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Color(0xccd60000),
+              behavior: SnackBarBehavior.floating,
+            content: Text('please enter a valid Number'),
+            duration: Duration(seconds: 10),
+          ),
+      );
     } else {
       setState(() {
         _patternLength = int.parse(newInput);
       });
+      Navigator.pop(context, _patternLength);
+      Navigator.pop(context);
     }
-    Navigator.pop(context, _patternLength);
-    Navigator.pop(context);
+
   }
 
   @override
@@ -80,6 +88,7 @@ class _PatternScreenState extends State<PatternScreen> {
         ],
 
       ),
+
 
 
     );

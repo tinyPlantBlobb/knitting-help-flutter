@@ -53,6 +53,7 @@ class _StartPageState extends State<StartPage> {
     });
     _save();
   }
+
   void _decrementCounter() {
     setState(() {
       _counter--;
@@ -61,6 +62,10 @@ class _StartPageState extends State<StartPage> {
       _counter++;
 
     });
+  }
+  void decrement(){
+    _decrementCounter();
+    Navigator.pop(context);
   }
 
   void changePattern() async{
@@ -126,13 +131,18 @@ class _StartPageState extends State<StartPage> {
                 onTap: resetCount,
                 title: const Text('reset counter'),
               ),
+              
               ListTile(
                 onTap:
-                _decrementCounter,
-
-
+                decrement,
                 title: const Text('decrease counter'),
               ),
+              
+              ListTile(
+                leading: const Icon(Icons.bluetooth_disabled),
+                onTap: _disconnect,
+                title: const Text('disconnect all devices'),
+              )
             ]
         ),
 
