@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:typed_data';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -47,14 +50,41 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   int _counter = 1;
   int _patternLength = 8;
+  final key = 'count';
+  final key2 = 'pattern';
+  @override
+  void initState(){
+    super.initState();
+    _read();
+  }
+  //load values with shared preferences plugin
+  _read() async {
+    final prefs = await SharedPreferences.getInstance();
 
+    setState(() {
+      _counter = prefs.getInt(key) ?? 0;
+      _patternLength = prefs.getInt(key2) ?? 8;
+
+    });
+  }
   void _incrementCounter() {
     setState(() {
       _counter =  _counter % _patternLength;
       _counter++;
 
     });
+    _save();
   }
+  void _decrementCounter() {
+    setState(() {
+      _counter--;
+      _counter--;
+      _counter =  _counter % _patternLength;
+      _counter++;
+
+    });
+  }
+
   void changePattern() async{
     final newpattern = await Navigator.push(context,
         MaterialPageRoute(builder: (context) => PatternScreen(_patternLength),));
@@ -62,12 +92,27 @@ class _StartPageState extends State<StartPage> {
       _patternLength = newpattern;
       _counter =  1;
     });
+    _save();
   }
+
+  void resetCount(){
+    setState(() {
+      _counter = 1;
+    });
+    _save();
+  }
+
+
+ //save data with shared preferences plugin
+  _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt(key, _counter);
+    prefs.setInt(key2, _patternLength);;
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    final ButtonStyle style = TextButton.styleFrom(
-      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-    );
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -79,15 +124,40 @@ class _StartPageState extends State<StartPage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
-        actions: <Widget>[
-          TextButton(
-            style: style,
-          onPressed: changePattern,
-          child: const Text('change Pattern'),
-          ),
-        ],
+        ),
+      
+      endDrawer: Drawer(
+        child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                ),
+                child: Text('Options'),
+              ),
+              ListTile(
+                onTap: changePattern,
+                title: const Text('change Pattern'),
+              ),
+
+
+              ListTile(
+                onTap: resetCount,
+                title: const Text('reset counter'),
+              ),
+              ListTile(
+                onTap:
+                  _decrementCounter,
+
+
+                title: const Text('decrease counter'),
+              ),
+            ]
         ),
 
+
+      ),
 
       body: Center(
 
@@ -124,6 +194,7 @@ class _StartPageState extends State<StartPage> {
             tooltip: 'connect',
             child: const Icon(Icons.bluetooth_searching_sharp),
             ),
+
           ),
           Visibility(
             visible: _isConnected,
@@ -139,9 +210,7 @@ class _StartPageState extends State<StartPage> {
   }
 
 
-  void _disconnect(){
 
-  }
   // headphone part
   // the base code has been copied from https://github.com/teco-kit/cosinuss-flutter since I'm working with the Cosinuss One headphones
 
@@ -155,9 +224,6 @@ class _StartPageState extends State<StartPage> {
 
   bool earConnectFound = false;
 
-
-
-
   void updateAccelerometer(rawData) {
     Int8List bytes = Int8List.fromList(rawData);
 
@@ -165,8 +231,13 @@ class _StartPageState extends State<StartPage> {
     int acc_x = bytes[14];
     int acc_y = bytes[16];
     int acc_z = bytes[18];
+    //s_acc_y =  stc.add(acc_y);
     if (acc_y > 0 && accy <= 0) {
       _incrementCounter();
+    }
+    //not tested with the earable
+    if(accz.abs() > 20 &&  acc_z.abs()<= 20){
+      _decrementCounter();
     }
 
     setState(() {
@@ -184,9 +255,22 @@ class _StartPageState extends State<StartPage> {
 
     return mantissa;
   }
-  FlutterBlue flutterBlue = FlutterBlue.instance;
-  void _connect() {
 
+  FlutterBlue flutterBlue = FlutterBlue.instance;
+  //not tested with the earable
+  void _disconnect(){
+    var subscribes = flutterBlue.connectedDevices.then((devices) async {
+    for(BluetoothDevice d in devices){
+        if (d.name == "earconnect" && earConnectFound){
+          earConnectFound = false;
+          await d.disconnect();
+        }
+
+      }
+    });
+  }
+
+  void _connect() {
 
     // start scanning
     flutterBlue.startScan(timeout: Duration(seconds: 4));
@@ -207,7 +291,6 @@ class _StartPageState extends State<StartPage> {
               _connectionStatus = (_isConnected) ? "Connected" : "Disconnected";
             });
           });
-
           await r.device.connect();
 
           var services = await r.device.discoverServices();
@@ -234,6 +317,7 @@ class _StartPageState extends State<StartPage> {
       }
     }
     );
+
   }
 
 }
